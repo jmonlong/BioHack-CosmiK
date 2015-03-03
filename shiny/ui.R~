@@ -1,0 +1,21 @@
+library(shiny)
+
+load("fakeData.RData")
+
+shinyUI(pageWithSidebar(
+  headerPanel("Interactive clusters"),
+  # Sidebar with a slider input for number of observations
+  sidebarPanel(
+    selectInput("clMethod","Linkage method",
+                 c("ward","average"), selected = "ward"),
+    selectInput("group","Group",
+                 c("all",sort(unique(as.character(info.df$group)))), selected = "all"),
+    selectInput("colFeat","Coloring feature",
+                colnames(info.df), selected = "group"),
+    checkboxInput("roundDendo","Round dendogram",FALSE)
+  ),
+  # Main plot
+  mainPanel(
+    plotOutput("distPlot")
+  )
+))

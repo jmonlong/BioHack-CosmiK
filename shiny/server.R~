@@ -1,0 +1,27 @@
+library(shiny)
+library(cluster)
+
+load("fakeData.RData")
+
+shinyServer(function(input, output) {
+  output$distPlot <- renderPlot({
+    # Subset data
+    if(input$group!="all"){
+      info.df.tp = subset(info.df,group==input$group)
+      samp.tp = info.df.tp$sample
+      d.tp = as.dist(as.matrix(d.fake)[samp.tp,samp.tp])  
+    } else {
+      info.df.tp = info.df
+      d.tp = d.fake
+    }
+    ## Coloring features
+    col.f = factor(info.df.tp[,input$colFeat])
+    # Build cluster plot
+    hc = hclust(d.tp,method=input$clMethod)
+    ph.type = "phylogram"
+    if(input$roundDendo & require(ape)){
+      ph.type="fan"
+    } 
+    plot(as.phylo(hc),type=ph.type,tip.color=as.numeric(col.f))
+  })
+})
