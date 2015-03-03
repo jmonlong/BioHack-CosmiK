@@ -30,7 +30,7 @@ str(som_model)
 library(ggplot2)
 library(dplyr)
 
-gene.stats = data.frame(gene=rownames(dat_subset), med.exp=rowMeans(dat_subset), sd.exp=apply(dat_subset,1 , sd))
+gene.stats = data.frame(gene=rownames(dat.0), med.exp=rowMeans(dat.0), sd.exp=apply(dat.0,1 , sd))
 
 pdf = data.frame(gene.stats,
   somId = som_model$unit.classif,
