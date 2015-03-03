@@ -36,7 +36,7 @@ pdf = data.frame(gene.stats,
   somId = som_model$unit.classif,
   dist=som_model$distances)
 unit.pdf = data.frame(somId=1:nrow(som_model$grid$pts), som_model$grid$pts,
-  clust=cutree(hclust(dist(som_model$codes)),6))
+  clust=cutree(hclust(dist(som_model$codes)),50))
 pdf = merge(pdf, unit.pdf)
 pdf.s = pdf %>% group_by(x, y, somId, clust) %>% summarize(nb.genes=n(), dist.med=median(dist), med.exp=median(med.exp), sd.exp=mean(sd.exp))
 
