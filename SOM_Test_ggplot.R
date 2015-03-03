@@ -36,11 +36,12 @@ pdf = data.frame(gene.stats,
   somId = som_model$unit.classif,
   dist=som_model$distances)
 unit.pdf = data.frame(somId=1:nrow(som_model$grid$pts), som_model$grid$pts,
-  clust=cutree(hclust(dist(som_model$codes)),50))
+  clust=cutree(hclust(dist(som_model$codes)),100))
 pdf = merge(pdf, unit.pdf)
 pdf.s = pdf %>% group_by(x, y, somId, clust) %>% summarize(nb.genes=n(), dist.med=median(dist), med.exp=median(med.exp), sd.exp=mean(sd.exp))
 
-save(pdf, pdf.s, file="CosmiK.SOM")
+save(pdf, pdf.s, file="CosmiKSOM.R")
+save(unit.pdf, file = "CosmiKSOM_unitPDF.R")
 
 ggplot(pdf.s, aes(x=x,y=y)) + geom_point(size=7) + geom_point(aes(colour=nb.genes),size=6) + theme_bw() + scale_colour_gradient(low="red",high="white")
 ggplot(pdf.s, aes(x=x,y=y)) + geom_point(size=7) + geom_point(aes(colour=med.exp),size=6) + theme_bw() + scale_colour_gradient(low="red",high="white")
