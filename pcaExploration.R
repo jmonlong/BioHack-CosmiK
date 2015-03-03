@@ -23,13 +23,13 @@ med.g = apply(dat,1,median)
 hist(med.g, breaks=200)
 max.g = apply(dat,1,max)
 hist(max.g, breaks=200)
-dat.0 = dat[max.g>0,]
+dat.0 = dat[med.g>0.8,]
+med.0g = apply(dat.0,1,median)
+hist(med.0g, breaks=200)
+hist(as.numeric(unlist(dat.0)), breaks=200)
 
 ## NA for 0
-dat.0[dat.0==0] = NA
-nb.na = apply(dat.0, 1, function(rr) sum(is.na(rr)))
-hist(nb.na)
-pca.0 = prcomp(dat.0, scale.=TRUE, na.action =na.exclude())
+pca.0 = prcomp(dat.0, scale.=TRUE)
 plot(pca.mnr$x)
 
 
