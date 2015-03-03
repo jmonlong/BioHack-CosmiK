@@ -11,7 +11,7 @@ hist(max.g, breaks=200)
 dat.0 = dat[max.g>0,]
 
 #training set
-dat_subset<-dat.0[,1:20]
+dat_subset<-dat.0
 dat_train<-as.matrix(scale(dat_subset))
 
 #dat_train<-as.matrix(scale(dat.0))
@@ -19,6 +19,10 @@ dat_train<-as.matrix(scale(dat_subset))
 som_grid <- somgrid(xdim = 20, ydim=20, topo="hexagonal")
 
 som_model <- som(dat_train, grid=som_grid, rlen=100, alpha=c(0.05,0.01), keep.data = TRUE, n.hood="circular" )
+rm(som_grid, dat_train)
+
+#nice plots colors
+pretty_palette <- c("#1f77b4", '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2')
 
 plot(som_model, type="changes")
 plot(som_model, type="count")
@@ -49,4 +53,9 @@ ggplot(pdf.s, aes(x=x,y=y)) + geom_point(size=7) + geom_point(aes(colour=nb.gene
 ggplot(pdf.s, aes(x=x,y=y)) + geom_point(size=7) + geom_point(aes(colour=med.exp),size=6) + theme_bw() + scale_colour_gradient(low="red",high="white")
 ggplot(pdf.s, aes(x=x,y=y)) + geom_point(size=6) + geom_point(aes(colour=dist.med),size=5) + theme_bw() + scale_colour_gradient(low="red",high="white")
 ggplot(pdf.s, aes(x=x,y=y)) + geom_point(size=6) + geom_point(aes(colour=factor(clust)),size=5) + theme_bw()
+
+
+plot(som_model, type = "counts", main="Node Counts", palette.name=coolBlueHotRed)
+plot(som_model, type = "quality", main="Node Quality/Distance", palette.name=coolBlueHotRed)
+plot(som_model, type = "counts", main="Node Counts", palette.name=coolBlueHotRed)
 
