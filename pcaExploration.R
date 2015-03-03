@@ -11,10 +11,27 @@ plot(pca.o)
 plot(pca.o$x)
 
 ## Rescale
-pca.mnr = prcomp(dat.mn, scale.=TRUE)
+pca.mnr = prcomp(dat, scale.=TRUE)
 plot(pca.mnr$x)
 library(scatterplot3d)
 scatterplot3d(pca.mnr$x[,1:3])
+library(rgl)
+plot3d(pca.mnr$x)
+
+## Remove 0s
+med.g = apply(dat,1,median)
+hist(med.g, breaks=200)
+max.g = apply(dat,1,max)
+hist(max.g, breaks=200)
+dat.0 = dat[max.g>0,]
+
+## NA for 0
+dat.0[dat.0==0] = NA
+nb.na = apply(dat.0, 1, function(rr) sum(is.na(rr)))
+hist(nb.na)
+pca.0 = prcomp(dat.0, scale.=TRUE, na.action =na.exclude())
+plot(pca.mnr$x)
+
 
 ## Correlation
 cor.mat = cor(t(dat.mn))
