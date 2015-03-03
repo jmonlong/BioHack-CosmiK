@@ -87,7 +87,7 @@ pdf$PC2 = rnorm(nrow(pdf))
 
 pca.p = ggplot() + geom_point(data=pdf, aes(x=PC1, y=PC2,showSelected=somId, clickSelects=gene))
 
-gene.name = ggplot() + geom_text(data=pdf, aes(x=0,y=0,label=gene, showSelected=gene))
+gene.name = ggplot() + geom_text(data=pdf, aes(x=0,y=0,label=gene, showSelected=gene)) + theme(line = element_blank(),rect=element_blank(), axis.ticks=element_blank(), axis.text=element_blank()) + xlab("") + ylab("")
 
 gg2animint(list(som=som, exp=bar.exp, sd=bar.sd, pca=pca.p, gene=gene.name), "som-bar")
 
