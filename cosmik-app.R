@@ -52,6 +52,8 @@ som_model <- som(as.matrix(dat[,sample.int(ncol(dat),nb.sample)]), grid=som_grid
 som_cluster = cutree(hclust(dist(som_model$codes)),6)
 
 ## Summary stats
+
+
 gene.stats = data.frame(gene=rownames(dat), med.exp=rowMeans(dat), sd.exp=apply(dat,1 , sd), stringsAsFactors=FALSE)
 pdf = data.frame(gene.stats,
   somId = som_model$unit.classif,
@@ -65,6 +67,7 @@ pdf = merge(pdf, unit.pdf)
 pdf.s = pdf %>% group_by(x, y, somId, clust, dist.neighbours) %>% summarize(nb.genes=n(), dist.med=median(dist), med.exp=median(med.exp), sd.exp=mean(sd.exp))
 
 ##
+load('/home/phc/Desktop/BioHack-CosmiK/CosmiKSOM.R')
 som <- ggplot() + geom_point(data=pdf.s, aes(x=x, y=y, colour=dist.neighbours, clickSelects=somId, clickSelects2=clust),size=6) + theme_bw()  + theme(line = element_blank(),rect=element_blank(), axis.ticks=element_blank(), axis.text=element_blank()) + xlab("") + ylab("") + scale_colour_gradient(low="grey90",high="grey30")
 
 med.sd = ggplot() + geom_point(data=pdf,alpha=.3, aes(x=med.exp, y=sd.exp, showSelected=somId))  + xlab("median expression") + ylab("standard deviation")
