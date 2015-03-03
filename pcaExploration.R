@@ -1,37 +1,27 @@
 library(ggplot2)
-
-dat = read.table("tcga_RSEM_tranform.csv", header=TRUE, sep="\t", as.is=TRUE)
-dim(dat)
-dat[1:5,1:5]
-summary(dat)
-
-## PCA
-pca.o = prcomp(as.matrix(dat))
-plot(pca.o)
-plot(pca.o$x)
-
-## Rescale
-pca.mnr = prcomp(dat, scale.=TRUE)
-plot(pca.mnr$x)
 library(scatterplot3d)
-scatterplot3d(pca.mnr$x[,1:3])
-library(rgl)
-plot3d(pca.mnr$x)
+#library(rgl)
 
-## Remove 0s
-med.g = apply(dat,1,median)
-hist(med.g, breaks=200)
-max.g = apply(dat,1,max)
-hist(max.g, breaks=200)
-dat.0 = dat[max.g>0,]
+#Loading data
+data = read.table("/home/phc/Desktop/BioHack-CosmiK/tcga_RSEM_tranform.csv", header=TRUE, sep="\t", as.is=TRUE)
 
-## NA for 0
-dat.0[dat.0==0] = NA
-nb.na = apply(dat.0, 1, function(rr) sum(is.na(rr)))
-hist(nb.na)
-pca.0 = prcomp(dat.0, scale.=TRUE, na.action =na.exclude())
+#Removing the genes that contains at least a 0
+anyZero = apply(data,1,function(x){min(x)!=0})
+data.0 = data[anyZero,]
+
+#Puts the data.0 file into matrix format
+data.0 = as.matrix(data.0)
+
+#PCA
+pca.mnr = prcomp(data.0, scale.=TRUE)
+
+pca.x = pca.mnr$x[,1:3] #Save PCA values
+pca.x$new.col = rep(0,nrow(data.0)); #Creates a new collom to add features value
+
+#Plotting PCA
 plot(pca.mnr$x)
+scatterplot3d(pca.mnr$x[,1:3])
 
+#Interactive 3d plot for better perspective on color
+#plot3d(pca.mnr$x)
 
-## Correlation
-cor.mat = cor(t(dat.mn))
