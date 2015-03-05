@@ -41,9 +41,9 @@ kohUmatrix <- function(x)
 
 
 shinyServer(function(input, output) {
-  som.comp <- shiny::reactive({
+  som.comp <- reactive({
     som_grid <- somgrid(xdim = input$nb.units, ydim=input$nb.units, topo="hexagonal")
-    som_model <- som(dat, grid=som_grid, rlen=60, alpha=c(0.05,0.01), keep.data = TRUE, n.hood="circular" )
+    som_model <- som(dat[,1:20], grid=som_grid, rlen=60, alpha=c(0.05,0.01), keep.data = TRUE, n.hood="circular" )
     som_cluster = cutree(hclust(dist(som_model$codes)),6)
     ## Summary stats
     gene.stats = data.frame(gene=rownames(dat), med.exp=rowMeans(dat), sd.exp=apply(dat,1 , sd), stringsAsFactors=FALSE)
@@ -60,31 +60,48 @@ shinyServer(function(input, output) {
     return(list(pdf=pdf, pdf.s=pdf.s))
   })
 
-  output$compile = shiny::renderText({
+  output$anim = renderAnimint({
     som.o = som.comp()
-    pdf = som.o$pdf
-    pdf.s = som.o$pdf.s
+    pdf = as.data.frame(som.o$pdf)
+    pdf.s = as.data.frame(som.o$pdf.s)
+    pdf.s$col = pdf.s[,input$col]
+    if(input$col=="clust"){
+      scCol = scale_colour_hue()
+      pdf.s$col = factor(pdf.s$col)
+    } else {
+      scCol = scale_colour_gradient(low="white",high="black")
+    }
     
-    som <- ggplot() + geom_point(data=pdf.s, aes(x=x, y=y, colour=dist.neighbours, clickSelects=somId, clickSelects2=clust),size=6) + theme_bw()  + theme(line = element_blank(),rect=element_blank(), axis.ticks=element_blank(), axis.text=element_blank()) + xlab("") + ylab("") + scale_colour_gradient(low="grey90",high="grey30")
+    som <- ggplot() + geom_point(data=pdf.s, aes(x=x, y=y), size=7, colour="black") + geom_point(data=pdf.s, aes(x=x, y=y, colour=col, clickSelects=somId),size=6)   + theme_bw()  + theme(line = element_blank(),rect=element_blank(), axis.ticks=element_blank(), axis.text=element_blank()) + xlab("") + ylab("") + scCol
+    
     med.sd = ggplot() + geom_point(data=pdf,alpha=.3, aes(x=med.exp, y=sd.exp, showSelected=somId))  + xlab("median expression") + ylab("standard deviation")
     ##PCA
     pca.mnr = prcomp(as.matrix(dat), scale.=TRUE)
     pca.x = pca.mnr$x[,1:3] #Save PCA values
-pca.x<-data.frame(pca.x)
+    pca.x<-data.frame(pca.x)
     pca.x$gene<-row.names(pca.x)
     pdf$gene<-as.character(pdf$gene)
     pdf<-merge(pdf,pca.x,by="gene",all.x=T)
     pca.p = ggplot() + geom_point(data=pdf,colour="red", aes(x=PC1, y=PC2,showSelected=somId, clickSelects=gene))
     gene.name = ggplot() + geom_text(data=pdf, aes(x=0,y=0,label=gene, showSelected=gene)) + theme(line = element_blank(),rect=element_blank(), axis.ticks=element_blank(), axis.text=element_blank()) + xlab("") + ylab("")
     
-    print(animint2dir(list(som=som, msd=med.sd, pca=pca.p, gene=gene.name), ".", open.browser=FALSE))
-    return("done")
+    list(som=som, msd=med.sd, pca=pca.p, gene=gene.name)
   })
-  output$SOM = shiny::renderPlot({
+  output$SOM = renderPlot({
     som.o = som.comp()
-    pdf = som.o$pdf
-    pdf.s = som.o$pdf.s
-    pdf.s$col = as.data.frame(pdf.s)[,input$col]
-    return(ggplot(pdf.s, aes(x=x, y=y, colour=col)) + geom_point(size=8, colour="black")  + geom_point(size=7) + theme_bw()  + theme(line = element_blank(),rect=element_blank(), axis.ticks=element_blank(), axis.text=element_blank(), legend.position="top") + xlab("") + ylab("") + scale_colour_gradient(low="blue",high="red"))
+    pdf.s = as.data.frame(som.o$pdf.s)
+    pdf.s$col = pdf.s[,input$col]
+    if(input$col=="clust"){
+      scCol = scale_colour_hue()
+      pdf.s$col = factor(pdf.s$col)
+    } else {
+      scCol = scale_colour_gradient(low="white",high="black")
+    }
+
+    ggplot(pdf.s, aes(x=x, y=y, colour=col)) +
+           geom_point(size=8, colour="black")  + geom_point(size=7) +
+             theme_bw()  + theme(line = element_blank(),rect=element_blank(), axis.ticks=element_blank(), axis.text=element_blank(), legend.position="top") +
+           xlab("") + ylab("") + scCol
+    
   })
 })
