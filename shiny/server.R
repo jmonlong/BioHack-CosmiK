@@ -45,8 +45,17 @@ kohUmatrix <- function(x){
 
 shinyServer(function(input, output) {
 
+  get.dat <- reactive({
+    if(input$med.norm){
+      med.global = median(dat, na.rm=TRUE)
+      dat = t(apply(dat, 1, function(ee)ee/median(ee, na.rm=TRUE)*med.global))
+    }
+    return(dat)
+  })
+  
   som.model.comp <- reactive({
     som_grid <- somgrid(xdim = input$nb.units, ydim=input$nb.units, topo="hexagonal")
+    dat = get.dat()
     som_model <- som(dat[, sample.int(ncol(dat), input$nb.samp)], grid=som_grid, rlen=input$nb.iter, alpha=c(0.05,0.01), keep.data = TRUE, n.hood="circular" )
     return(som_model)
   })
