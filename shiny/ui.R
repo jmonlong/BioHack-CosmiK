@@ -4,12 +4,16 @@ library(animint)
 shinyUI(fluidPage(
   headerPanel("Interactive clusters"),
   sidebarPanel(
-    sliderInput("nb.units", "Number of units", 10, 30, 10, step = 5),
-    radioButtons("col", "Color", c("clust","dist.neighbours","nb.genes", "med.exp", "sd.exp"), selected = "nb.genes")),
+    numericInput("nb.samp", "Number of samples", 10, 10, 30, step = 5),
+    numericInput("nb.iter", "Number of iterations", 10, 10, 100, step = 10),
+    numericInput("nb.units", "Number of units", 10, 10, 40, step = 5),
+    numericInput("nb.clust", "Number of clusters", 2, 2,20, step = 1),
+    selectInput("col","Color by", c(cluster="clust",distance="dist.neighbours",genes="nb.genes", expression="med.exp", variation="sd.exp"), selected = "nb.genes")),
  ## Main plot
   mainPanel(
     tabsetPanel(
-      tabPanel("SOM", plotOutput("SOM")),
+      tabPanel("SOM", column(5,plotOutput("som")), column(5, plotOutput("som.conv"))),
+      tabPanel("SOM Weights", plotOutput("som.codes", height="800px")),
       tabPanel("Animation", animintOutput("anim"))
     )
   )))
